@@ -37,9 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'category',
     'accounts',
+    'category',
     'store',
+    'carts',
 ]
 
 AUTH_USER_MODEL = 'accounts.Account'
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'carts.context_processors.counter',
             ],
         },
     },
@@ -134,3 +136,13 @@ MEDIA_ROOT = BASE_DIR /'media'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}
+
+#smtp configuration
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587

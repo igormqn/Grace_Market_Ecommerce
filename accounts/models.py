@@ -10,7 +10,7 @@ class MyAccountManager(BaseUserManager):
             raise ValueError('User must have a valid username')
 
         user = self.model(
-            email=email,
+            email=self.normalize_email(email),
             username=username,
             first_name=first_name,
             last_name=last_name,
@@ -22,15 +22,16 @@ class MyAccountManager(BaseUserManager):
 
     def create_superuser(self, first_name, last_name, email, username, password):
         user = self.create_user(
-            email=email,
+            email=self.normalize_email(email),
             username=username,
             password=password,
             first_name=first_name,
             last_name=last_name,
         )
         user.is_admin = True
+        user.is_active = True
         user.is_staff = True
-        user.is_superuser = True  # Set the user as a superuser
+        user.is_superadmin = True  # Set the user as a superuser
         user.save(using=self._db)
         return user
 
@@ -61,6 +62,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     
     def has_perm(self, perm, obj=None):
         return self.is_admin
-    
-    def has_module_perms(self, add_label):
+
+    def has_module_perms(self, app_label):
         return True
