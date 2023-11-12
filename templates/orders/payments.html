@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<section class="section-content padding-y bg">
+    <div class="container">
+    
+    <!-- ============================ COMPONENT 1 ================================= -->
+{% if not cart_items %}
+        <h2 class="text-center">Cart is Empty</h2>
+        <br>
+        <div class="text-center">
+            <a href="{% url 'store' %}" class="btn btn-primary">Continue Shopping</a>
+{% else %}
+    <div class="row">
+        <aside class="col-lg-9">
+    <div class="card">
+        <h3 class="card-header">Review your order and make payment</h3>
+        <div class="card-body">
+            <h5 class="card-title">Billing Adress</h5>
+            <p class="card-text">{{order.full_name}}</p>
+            <p class="card-text">{{order.full_address}}</p>
+            <p class="card-text">{{order.city}}, {{order.state}}</p>
+            <p class="card-text">{{order.country}}</p>
+            {% if order.order_note %}
+                <b>Order Note: </b> {{order.order_note}}
+            {% endif %}
+
+        </div>
+    </div> <!-- card.// -->
+    <div class="card">
+        <h5 class="card-header"></h5>
+        <div class="card-body">
+            <h5 class="card-title">Payment Method</h5>
+            <p class="card-text">With supporting text below as a natural lead-in to additic</p>
+            <a href="#" class="btn btn-primary">Go somewhere</a>
+        </div>
+    </div> <!-- card.// -->
+    <div class="card">
+        <h5 class="card-header"></h5>
+        <div class="card-body">
+            <h5 class="card-title">Review Products</h5>
+            <p class="card-text">With supporting text below as a natural lead-in to additic</p>
+            <a href="#" class="btn btn-primary">Go somewhere</a>
+        </div>
+    </div> <!-- card.// -->
+    
+        </aside> <!-- col.// -->
+        <aside class="col-lg-3">
+    
+            <div class="card">
+            <div class="card-body">
+                <dl class="dlist-align">
+                  <dt>Total price:</dt>
+                  <dd class="text-right">£ {{total}}</dd>
+                </dl>
+                <dl class="dlist-align">
+                  <dt>Tax:</dt>
+                  <dd class="text-right"> £ {{tax}}</dd>
+                </dl>
+                <dl class="dlist-align">
+                  <dt>Grand Total:</dt>
+                  <dd class="text-right text-dark b"><strong>£{{grand_total}}</strong></dd>
+                </dl>
+                <hr>
+                <p class="text-center mb-3">
+                    <img src="../../media/photos/misc/payments.png" height="26">
+                </p>
+                <div id="paypal-button-container">
+                    <!-- paypal button will load -->
+                </div>
+
+            </div> <!-- card-body.// -->
+            </div> <!-- card.// -->
+    
+    </aside> <!-- col.// -->
+    
+    
+    </div> <!-- row.// -->
+    {% endif %}
+    <!-- ============================ COMPONENT 1 END .// ================================= -->
+    
+    </div> <!-- container .//  -->
+    </section>
+    <!-- ========================= SECTION CONTENT END// ========================= -->
+    <script>
+        let amount = {{ grand_total }};
+        let url = "{% url 'payments' %}";
+        let csrf_token = getCookie('csrftoken');
+        let orderID = "{{ order_number }}";
+        let payment_method = 'PayPal';
+        let redirect_url = "{% url 'order_complete' %}"
+    
+        // Render the PayPal button into #paypal-button-container
+        paypal.Buttons({
+            style: {
+                color: 'blue',
+                shape: 'rect',
+                label: 'pay',
+                height: 40
+            },
+            // Call your server to set up the transaction
+            createOrder: function(data, actions) {
+                return fetch('/demo/checkout/api/paypal/order/create/', {
+                    method: 'post'
+                }).then(function(res) {
+                    return res.json();
+                }).then(function(orderData) {
+                    return orderData.id;
+                });
+            },
+            // Call your server to finalize the transaction
+            onApprove: function(data, actions) {
+                return fetch('/demo/checkout/api/paypal/order/' + data.orderID + '/capture/', {
+                    method: 'post',
+                }).then(function(res) {
+                    return res.json();
+                }).then(function(orderData) {
+                    // Handle the response from your server here
+                    // You can use orderData to update your UI or perform any necessary actions
+                    // For example, you can send order details to your server using the `fetch` API
+                    sendData(orderData);
+                });
+            }
+        }).render('#paypal-button-container');
+    
+        // Function to send order data to your server
+        function sendData(orderData) {
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrf_token,
+                },
+                body: JSON.stringify({
+                    orderID: orderID,
+                    transID: orderData.id,
+                    payment_method: payment_method,
+                    status: orderData.status
+                })
+            }).then(response => response.json())
+                .then((data => {
+                    window.location.href = redirect_
+        })
+    </script>
+    
+
+{% endblock %}
